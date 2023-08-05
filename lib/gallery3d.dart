@@ -14,18 +14,18 @@ class Gallery3D extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final bool isClip;
 
-  Gallery3D(
-      {Key? key,
-      this.onClickItem,
-      this.onItemChanged,
-      this.isClip = true,
-      this.height,
-      this.padding,
-      required this.itemConfig,
-      required this.controller,
-      required this.width,
-      required this.itemBuilder})
-      : super(key: key);
+  const Gallery3D({
+    super.key,
+    this.onClickItem,
+    this.onItemChanged,
+    this.isClip = true,
+    this.height,
+    this.padding,
+    required this.itemConfig,
+    required this.controller,
+    required this.width,
+    required this.itemBuilder,
+  });
 
   @override
   State<Gallery3D> createState() => _Gallery3DState();
@@ -55,15 +55,18 @@ class _Gallery3DState extends State<Gallery3D>
 
     _updateWidgetIndexOnStack();
     if (controller.autoLoop) {
-      this._timer =
+      _timer =
           Timer.periodic(Duration(milliseconds: controller.delayTime), (timer) {
         if (!mounted) return;
         if (appLifecycleState != AppLifecycleState.resumed) return;
         if (DateTime.now().millisecondsSinceEpoch - _lastTouchMillisecond <
             controller.delayTime) return;
         if (_isTouching) return;
-        animateTo(controller.getOffsetAngleFormTargetIndex(
-            getNextIndex(controller.currentIndex)));
+        animateTo(
+          controller.getOffsetAngleFormTargetIndex(
+            getNextIndex(controller.currentIndex),
+          ),
+        );
       });
     }
 
@@ -101,7 +104,7 @@ class _Gallery3DState extends State<Gallery3D>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: widget.width,
       height: widget.height ?? widget.itemConfig.height,
       child: GestureDetector(
@@ -134,9 +137,10 @@ class _Gallery3DState extends State<Gallery3D>
   Widget _buildWidgetList() {
     if (widget.isClip) {
       return ClipRect(
-          child: Stack(
-        children: _galleryItemWidgetList,
-      ));
+        child: Stack(
+          children: _galleryItemWidgetList,
+        ),
+      );
     }
     return Stack(
       children: _galleryItemWidgetList,
@@ -144,8 +148,8 @@ class _Gallery3DState extends State<Gallery3D>
   }
 
   void _scrollToAngle(double angle) {
-    _autoScrollAnimationController =
-        AnimationController(duration: Duration(milliseconds: 400), vsync: this);
+    _autoScrollAnimationController = AnimationController(
+        duration: const Duration(milliseconds: 400), vsync: this);
 
     Animation animation;
 
@@ -181,9 +185,11 @@ class _Gallery3DState extends State<Gallery3D>
     var offsetX = _lastUpdateLocation!.dx - _panDownLocation!.dx;
     if (offsetX.abs() > widget.width * 0.1) {
       targetAngle = controller
-              .getTransformInfo(offsetX > 0
-                  ? getPreIndex(controller.currentIndex)
-                  : getNextIndex(controller.currentIndex))
+              .getTransformInfo(
+                offsetX > 0
+                    ? getPreIndex(controller.currentIndex)
+                    : getNextIndex(controller.currentIndex),
+              )
               .angle -
           180;
     } else {
@@ -236,9 +242,9 @@ class _Gallery3DState extends State<Gallery3D>
     return nextIndex;
   }
 
-  List<GalleryItem> _leftWidgetList = [];
-  List<GalleryItem> _rightWidgetList = [];
-  List<GalleryItem> _tempList = [];
+  final List<GalleryItem> _leftWidgetList = [];
+  final List<GalleryItem> _rightWidgetList = [];
+  final List<GalleryItem> _tempList = [];
 
   ///改变的widget的在Stack中的顺序
   void _updateWidgetIndexOnStack() {
@@ -255,21 +261,25 @@ class _Gallery3DState extends State<Gallery3D>
       }
     }
 
-    _rightWidgetList.sort((widget1, widget2) =>
-        widget1.transformInfo.angle.compareTo(widget2.transformInfo.angle));
+    _rightWidgetList.sort(
+      (widget1, widget2) =>
+          widget1.transformInfo.angle.compareTo(widget2.transformInfo.angle),
+    );
 
-    _rightWidgetList.forEach((element) {
+    for (var element in _rightWidgetList) {
       if (element.transformInfo.angle < controller.unitAngle / 2) {
         element.transformInfo.angle += 360;
         _tempList.add(element);
       }
-    });
-    _tempList.forEach((element) {
+    }
+    for (var element in _tempList) {
       _rightWidgetList.remove(element);
-    });
+    }
     _leftWidgetList.insertAll(0, _tempList);
-    _leftWidgetList.sort((widget1, widget2) =>
-        widget2.transformInfo.angle.compareTo(widget1.transformInfo.angle));
+    _leftWidgetList.sort(
+      (widget1, widget2) =>
+          widget2.transformInfo.angle.compareTo(widget1.transformInfo.angle),
+    );
 
     _galleryItemWidgetList = [
       ..._leftWidgetList,
@@ -299,11 +309,12 @@ class _GalleryItemTransformInfo {
   double angle;
   int index;
 
-  _GalleryItemTransformInfo(
-      {required this.index,
-      this.scale = 1,
-      this.angle = 0,
-      this.offset = Offset.zero});
+  _GalleryItemTransformInfo({
+    required this.index,
+    this.scale = 1,
+    this.angle = 0,
+    this.offset = Offset.zero,
+  });
 }
 
 class GalleryItem extends StatelessWidget {
@@ -315,8 +326,8 @@ class GalleryItem extends StatelessWidget {
   final _GalleryItemTransformInfo transformInfo;
 
   final double minScale; //最小缩放值
-  GalleryItem({
-    Key? key,
+  const GalleryItem({
+    super.key,
     required this.index,
     required this.transformInfo,
     required this.config,
@@ -324,45 +335,56 @@ class GalleryItem extends StatelessWidget {
     this.minScale = 0.4,
     this.onClick,
     this.ellipseHeight = 0,
-  }) : super(key: key);
+  });
 
   Widget _buildItem(BuildContext context) {
-    return Container(
-        width: config.width,
-        height: config.height,
-        child: builder(context, index));
+    return SizedBox(
+      width: config.width,
+      height: config.height,
+      child: builder(context, index),
+    );
   }
 
   Widget _buildMaskTransformItem(Widget child) {
     if (!config.isShowTransformMask) return child;
-    return Stack(children: [
-      child,
-      Container(
-        width: config.width,
-        height: config.height,
-        color: Color.fromARGB(
-            100 * (1 - transformInfo.scale) ~/ (1 - minScale), 0, 0, 0),
-      )
-    ]);
+    return Stack(
+      children: [
+        child,
+        Container(
+          width: config.width,
+          height: config.height,
+          color: Color.fromARGB(
+            100 * (1 - transformInfo.scale) ~/ (1 - minScale),
+            0,
+            0,
+            0,
+          ),
+        )
+      ],
+    );
   }
 
   Widget _buildRadiusItem(Widget child) {
     if (config.radius <= 0) return child;
     return ClipRRect(
-        borderRadius: BorderRadius.circular(config.radius), child: child);
+      borderRadius: BorderRadius.circular(config.radius),
+      child: child,
+    );
   }
 
   Widget _buildShadowItem(Widget child) {
     if (config.shadows.isEmpty) return child;
     return Container(
-        child: child, decoration: BoxDecoration(boxShadow: config.shadows));
+      decoration: BoxDecoration(boxShadow: config.shadows),
+      child: child,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
       offset: transformInfo.offset,
-      child: Container(
+      child: SizedBox(
         width: config.width,
         height: config.height,
         child: Transform.scale(
@@ -372,7 +394,8 @@ class GalleryItem extends StatelessWidget {
             splashColor: Colors.transparent,
             onTap: () => onClick?.call(index),
             child: _buildShadowItem(
-                _buildRadiusItem(_buildMaskTransformItem(_buildItem(context)))),
+              _buildRadiusItem(_buildMaskTransformItem(_buildItem(context))),
+            ),
           ),
         ),
       ),
@@ -388,12 +411,13 @@ class GalleryItemConfig {
   final List<BoxShadow> shadows; //控制item的阴影
   final bool isShowTransformMask; //是否显示item的透明度蒙层的渐变
 
-  const GalleryItemConfig(
-      {this.width = 220,
-      this.height = 300,
-      this.radius = 0,
-      this.isShowTransformMask = true,
-      this.shadows = const []});
+  const GalleryItemConfig({
+    this.width = 220,
+    this.height = 300,
+    this.radius = 0,
+    this.isShowTransformMask = true,
+    this.shadows = const [],
+  });
 }
 
 class Gallery3DController {
@@ -409,16 +433,16 @@ class Gallery3DController {
   final int scrollTime;
   final bool autoLoop;
   late Gallery3DMixin vsync;
-  List<_GalleryItemTransformInfo> _galleryItemTransformInfoList = [];
+  final List<_GalleryItemTransformInfo> _galleryItemTransformInfoList = [];
   double baseAngleOffset = 0; //180度的基准角度偏差
-  Gallery3DController(
-      {required this.itemCount,
-      this.ellipseHeight = 0,
-      this.autoLoop = true,
-      this.minScale = 0.4,
-      this.delayTime = 5000,
-      this.scrollTime = 1000})
-      : assert(itemCount >= 3, 'ItemCount must be greater than or equal to 3');
+  Gallery3DController({
+    required this.itemCount,
+    this.ellipseHeight = 0,
+    this.autoLoop = true,
+    this.minScale = 0.4,
+    this.delayTime = 5000,
+    this.scrollTime = 1000,
+  }) : assert(itemCount >= 3, 'ItemCount must be greater than or equal to 3');
 
   void init(GalleryItemConfig itemConfig) {
     this.itemConfig = itemConfig;
@@ -429,11 +453,14 @@ class Gallery3DController {
     _galleryItemTransformInfoList.clear();
     for (var i = 0; i < itemCount; i++) {
       var itemAngle = getItemAngle(i);
-      _galleryItemTransformInfoList.add(_GalleryItemTransformInfo(
+      _galleryItemTransformInfoList.add(
+        _GalleryItemTransformInfo(
           index: i,
           angle: itemAngle,
           scale: calculateScale(itemAngle),
-          offset: calculateOffset(itemAngle)));
+          offset: calculateOffset(itemAngle),
+        ),
+      );
     }
   }
 
