@@ -28,7 +28,7 @@ class Gallery3D extends StatefulWidget {
       : super(key: key);
 
   @override
-  _Gallery3DState createState() => _Gallery3DState();
+  State<Gallery3D> createState() => _Gallery3DState();
 }
 
 class _Gallery3DState extends State<Gallery3D>
@@ -67,14 +67,13 @@ class _Gallery3DState extends State<Gallery3D>
       });
     }
 
-    WidgetsBinding.instance?.addObserver(this);
-
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _timer = null;
     _autoScrollAnimationController?.stop(canceled: true);
