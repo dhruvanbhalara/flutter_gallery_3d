@@ -89,7 +89,7 @@ class _Demo01State extends State<Demo01> {
           children: [
             Stack(
               children: [
-                BackgrounBlurView(
+                BackgroundBlurView(
                   imageUrl: imageUrlList[currentIndex],
                 ),
                 Container(
@@ -116,9 +116,9 @@ class _Demo01State extends State<Demo01> {
   }
 }
 
-class BackgrounBlurView extends StatelessWidget {
+class BackgroundBlurView extends StatelessWidget {
   final String imageUrl;
-  const BackgrounBlurView({Key? key, required this.imageUrl}) : super(key: key);
+  const BackgroundBlurView({Key? key, required this.imageUrl}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
